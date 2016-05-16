@@ -22,8 +22,7 @@ for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
     dpkg-divert --rename --add "${script}"
     cat > "$script" << EOF
 #!/bin/sh
-echo "This script is not used by Tails."
-echo "See https://tails.boum.org/doc/anonymous_internet/i2p/ for more information."
+echo "This script is not used by Whonix."
 exit 0
 EOF
     chmod 755 "$script"
@@ -50,6 +49,40 @@ sed -i 's|^.*\(wrapper\.java\.additional\.6=-Djava\.net\.preferIPv6Addresses=\).
 sed -i "s/\(.*interface=\).*/\1$GATEWAYIP/g;s/\(.*targetHost=\).*/\1$GATEWAYIP/g" "$I2P/i2ptunnel.config"
 sed -i "s/127\.0\.0\.1/$GATEWAYIP/g" "$I2P/clients.config"
 echo "susimail.host=$GATEWAYIP" >> /usr/share/i2p/susimail.config
+
+#Add the needed Whonix Firewall User Rules so I2P can connect and is reachable by the Worksation
+cat >> "/etc/whonix_firewall.d/50_user.conf" << EOF
+NO_NAT_USERS+=" $(id -u i2psvc)"
+GATEWAY_TRANSPARENT_DNS=1
+GATEWAY_TRANSPARENT_TCP=1
+SOCKS_PORT_I2P_BOB=2827
+SOCKS_PORT_I2P_TAHOE=3456
+SOCKS_PORT_I2P_WWW=4444
+SOCKS_PORT_I2P_WWW2=4445
+SOCKS_PORT_I2P_IRC=6668
+SOCKS_PORT_I2P_XMPP=7622
+SOCKS_PORT_I2P_CONTROL=7650
+SOCKS_PORT_I2P_SOCKSIRC=7651
+SOCKS_PORT_I2P_SOCKS=7652
+SOCKS_PORT_I2P_I2CP=7654
+SOCKS_PORT_I2P_SAM=7656
+SOCKS_PORT_I2P_CON=7657
+SOCKS_PORT_I2P_EEP=7658
+SOCKS_PORT_I2P_SMTP=7659
+SOCKS_PORT_I2P_POP=7660
+SOCKS_PORT_I2P_BOTESMTP=7661
+SOCKS_PORT_I2P_BOTEIMAP=7662
+SOCKS_PORT_I2P_MTN=8998
+EOF
+
+#Add I2P's paths to Qubes Persistent Folders
+#Currently not working , once Qubes R3.2 is out it will work
+#cat >> "/usr/lib/qubes-bind-dirs.d/40_qubes-whonix.conf" << EOF
+#binds+=( '/etc/i2p' )
+#binds+=( '/var/lib/i2p/i2p-config/' )
+#EOF
+
+#old path /usr/lib/qubes-whonix/bind-directories
 
 # Tails/Whonix specific router configs:
 # * i2cp: allows java clients to communicate with I2P outside of the JVM. Disabled.
