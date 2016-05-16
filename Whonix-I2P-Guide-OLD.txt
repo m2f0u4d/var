@@ -3,7 +3,6 @@
 	
 	
 	Disclaimer
-	Current ToDo
 	Preperation
 	Installing I2P
 	Editing the firewall rules
@@ -37,15 +36,6 @@ The steps in this document have been tested with I2P 0.9.25 and Whonix-(Gateway|
 
 
 
-Current Todo :
-	    
-
-                -. Figure out how we can set some setting per Default like DisableUPNP and Hidden Mode
-                -.refactor this ugly tutorial to make it useful for normal people # Working on it
-                -.Research if we could replace the step where we need to edit the resolve.conf or reseed via tor ? 
-                -.Look into debian packaging 
-                -.Cleanup code and add it to github
-                -.Host this Todo and all files regarding it on i2P
     
 Preparation    
     
