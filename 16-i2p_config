@@ -4,7 +4,8 @@ set -e
 
 echo "Configuring I2P"
 
-I2P="/usr/share/i2p"
+GATEWAYIP=$(cat /var/cache/qubes-whonix/whonix-ip-gateway)
+I2P="/var/lib/i2p/i2p-config/"
 I2PROUTER="/usr/bin/i2prouter"
 WRAPPER="/etc/i2p/wrapper.config"
 
@@ -45,7 +46,12 @@ sed -i 's|^clientApp\.0\.args=7657\s\+::1,127\.0\.0\.1|clientApp.0.args=7657 127
 sed -i 's|^.*\(wrapper\.java\.additional\.5=-Djava\.net\.preferIPv4Stack=\).*|\1true|' "$WRAPPER"
 sed -i 's|^.*\(wrapper\.java\.additional\.6=-Djava\.net\.preferIPv6Addresses=\).*|\1false|' "$WRAPPER"
 
-# Tails specific router configs:
+#Change the Listening IP from Localhost to the Whonix-Gateway Ip
+sed -i "s/\(.*interface=\).*/\1$GATEWAYIP/g;s/\(.*targetHost=\).*/\1$GATEWAYIP/g" "$I2P/i2ptunnel.config"
+sed -i "s/127\.0\.0\.1/$GATEWAYIP/g" "$I2P/clients.config"
+echo "susimail.host=$GATEWAYIP" >> /usr/share/i2p/susimail.config
+
+# Tails/Whonix specific router configs:
 # * i2cp: allows java clients to communicate with I2P outside of the JVM. Disabled.
 # * IPv6: Disabled
 # * HiddenMode: Enabled
