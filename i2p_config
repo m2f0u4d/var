@@ -2,6 +2,76 @@
 
 set -e
 
+if [ `id -u ` -ne 0 ]; then 
+
+    echo "This script must be run as root" 
+
+    exit 1 
+
+fi 
+#TODO Add Qubes Template check
+echo "Disclaimer"
+echo "This script will makes persistent changes to Whonix "
+echo "It could degrease your Anonymity or make Whonix Leak Information"
+echo "If you rely on strong Anonymity and are exposed to a large Advesary"
+echo "If thats the case for you Please dont use this !"
+echo " "
+echo "The Author takes no Responsibility if anything breaks"
+echo
+echo "The following changes will be made:"
+echo "--Add the I2P Repositories"
+echo "--Update the system's packages" 
+echo "--Install I2P, custom Init.d script" 
+echo "--Changes the Default I2P Settings" 
+echo "--Configure I2P to automatically start at boot"
+echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
+echo "--Make I2P's directories persistent"
+echo 
+echo -n "Are you sure you wish to continue? (y/n)  " 
+
+
+read ans 
+case $ans in 
+
+    y*|Y*|j*|J*) 
+
+
+        ;; 
+
+    *) 
+
+        exit 0 
+
+        ;; 
+
+esac 
+
+echo "Installing I2P"
+echo
+echo"Adding the I2P Repository"
+#Add I2P Repo
+cat  > /etc/apt/sources.list.d/i2p.list << EOF
+deb http://deb.i2p2.no/ stable main
+#deb-src http://deb.i2p2.no/ stable main
+EOF
+
+echo"Adding the I2P Repo key if not present"
+# Add the I2P repo key if apt doesn't know about it yet
+if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5BCF 1346" > /dev/null 2>&1; then
+    if wget --quiet https://geti2p.net/_static/i2p-debian-repo.key.asc -O $TMPFILE; then
+        apt-key add $TMPFILE
+        rm -f $TMPFILE
+    else
+        # Since fetching with wget failed, let's try getting it from a keyserver
+        apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0x67ECE5605BCF1346
+    fi
+fi
+
+apt-get update
+apt-get install i2p i2p-keyring
+#TODO Decide if we should set predefined settings here
+#echo "i2p i2p/daemon boolean true" | debconf-set-selections
+
 echo "Configuring I2P"
 
 GATEWAYIP=$(cat /var/cache/qubes-whonix/whonix-ip-gateway)
@@ -83,6 +153,11 @@ EOF
 #EOF
 
 #old path /usr/lib/qubes-whonix/bind-directories
+#Currently used method 
+#Add I2P's paths to Qubes Persistent Folders
+sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-directories
+sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
+sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
 
 # Tails/Whonix specific router configs:
 # * i2cp: allows java clients to communicate with I2P outside of the JVM. Disabled.
