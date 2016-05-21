@@ -144,7 +144,8 @@ SOCKS_PORT_I2P_BOTESMTP=7661
 SOCKS_PORT_I2P_BOTEIMAP=7662
 SOCKS_PORT_I2P_MTN=8998
 EOF
-
+#Reload Whonix Firewall
+/usr/bin/whonix_firewall
 #Add I2P's paths to Qubes Persistent Folders
 #Currently not working , once Qubes R3.2 is out it will work
 #cat >> "/usr/lib/qubes-bind-dirs.d/40_qubes-whonix.conf" << EOF

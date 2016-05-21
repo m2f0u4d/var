@@ -5,7 +5,7 @@ set -u
 
 # Import i2p_built_a_tunnel, i2p_reseed_failed, i2p_router_console_is_ready(),
 # and set_best_i2p_router_console_lang().
-. /usr/local/lib/tails-shell-library/i2p.sh
+. /usr/lib/i2p/i2p.sh
 
 I2P_STARTUP_TIMEOUT=60
 
@@ -19,9 +19,8 @@ I2P_BOOTSTRAP_TIMEOUT=210
 I2P_TUNNEL_BUILD_TIMEOUT=300
 
 startup_failure() {
-    /usr/local/sbin/tails-notify-user \
-        "`gettext \"I2P failed to start\"`" \
-        "`gettext \"Something went wrong when I2P was starting. Check the logs in /var/log/i2p for more information.\"`"
+	#Ugly but untill a better solution is found , it works 
+    kdialog --title "I2P failed to start" --passivepopup "Something went wrong when I2P was starting. Check the logs in /var/log/i2p for more information." 10 &
     service i2p dump # generate a thread dump
     sleep 5 # Give thread dump ample time to complete
     systemctl stop i2p # clean up, just in case
@@ -43,6 +42,7 @@ notify_router_console_success() {
 }
 
 bootstrap_failure() {
+	#replace
     /usr/local/sbin/tails-notify-user \
         "`gettext \"I2P is not ready\"`" \
         "`gettext \"Eepsite tunnel not built within six minutes. Check the router console in the I2P Browser or the logs in /var/log/i2p for more information. Reconnect to the network to try again.\"`"
@@ -56,6 +56,7 @@ wait_until_i2p_builds_a_tunnel() {
 }
 
 notify_bootstrap_success() {
+	#replace
     /usr/local/sbin/tails-notify-user \
         "`gettext \"I2P is ready\"`" \
         "`gettext \"You can now access services on I2P.\"`"

@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:     i2p-whonix
+# Provides:     i2p-whonix-socat-ws
 # Required-Start: $local_fs $time $network $named
 # Required-Stop: $local_fs $time $network $named
 # Default-Start: 2 3 4 5
@@ -19,7 +19,7 @@ WHONIX_GATEWAY=$(ip ro sho | awk '/^default/{print $3}')
 I2P_PORTS="2827 3456 4444 4445 6668 7622 7650 7651 7654 7656 7657 7658 7659 7660 7661 7662 8998"
 
 . /lib/lsb/init-functions
-[ -f /etc/default/i2p-whonix ] && . /etc/default/i2p-whonix
+[ -f /etc/default/i2p-whonix-socat-ws ] && . /etc/default/i2p-whonix-socat-ws
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
@@ -28,14 +28,14 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin
 start_socat() {
     for port in $I2P_PORTS; do
         start-stop-daemon --oknodo --quiet --start \
-            --pidfile /var/run/i2p-whonix-${port}.pid \
+            --pidfile /var/run/i2p-whonix-socat-ws-${port}.pid \
             --background --make-pidfile \
             --exec $DAEMON -- $SOCAT_DEFAULTS $OPTIONS TCP-LISTEN:$port,fork TCP:$WHONIX_GATEWAY:${port} < /dev/null
     done
 }
 
 stop_socat() {
-    for PIDFILE in /run/i2p-whonix-*.pid; do
+    for PIDFILE in /run/i2p-whonix-socat-ws-*.pid; do
         start-stop-daemon --oknodo --stop --quiet --pidfile $PIDFILE --exec $DAEMON
         rm -f $PIDFILE
     done
@@ -69,9 +69,9 @@ case "$1" in
         fi
         ;;
     status)
-        if $(ls /run/i2p-whonix-*.pid >/dev/null); then
+        if $(ls /run/i2p-whonix-socat-ws-*.pid >/dev/null); then
             echo "Currently forwarding ports to Whonix-Gateway:"
-            for port in $(ls /run/i2p-whonix-*.pid |cut -c17- | sed 's/\.pid//'); do echo -n "$port"; done
+            for port in $(ls /run/i2p-whonix-socat-ws-*.pid |cut -c17- | sed 's/\.pid//'); do echo -n "$port"; done
             echo
         else
             echo "Not forwarding I2P ports." >&2

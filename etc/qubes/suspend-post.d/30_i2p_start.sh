@@ -3,4 +3,4 @@
 
 set -e
 
-/usr/lib/i2p/whonix-i2p start &
+/usr/bin/i2p/whonix-i2p start &
