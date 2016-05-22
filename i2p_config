@@ -11,7 +11,7 @@ if [ `id -u ` -ne 0 ]; then
 fi
 clear
 #TODO Add Qubes Template check
-echo "Disclaimer"
+echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
 echo "If you rely on strong Anonymity and are exposed to a large Advesary"
@@ -26,8 +26,7 @@ echo "--Install I2P, custom Init.d script"
 echo "--Changes the Default I2P Settings" 
 echo "--Configure I2P to automatically start at boot"
 echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
-echo "--Make I2P's directories persistent"
-echo 
+echo "--Make I2P's directories persistent \n"
 echo -n "Are you sure you wish to continue? (y/n)  " 
 
 
@@ -42,14 +41,16 @@ case $ans in
 esac 
 
 echo "Installing I2P \n"
-echo"Adding the I2P Repository"
+echo "Adding the I2P Repository to the Apt list"
 #Add I2P Repo
 cat  > /etc/apt/sources.list.d/i2p.list << EOF
 deb http://deb.i2p2.no/ stable main
 #deb-src http://deb.i2p2.no/ stable main
 EOF
+echo"OK"
 
-echo"Adding the I2P Repo key if not present"
+sleep 1
+echo "Adding the I2P Repo key if not present"
 # Add the I2P repo key if apt doesn't know about it yet
 if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5BCF 1346" > /dev/null 2>&1; then
     if wget --quiet https://geti2p.net/_static/i2p-debian-repo.key.asc -O $TMPFILE; then
@@ -113,46 +114,7 @@ sed -i 's|^.*\(wrapper\.java\.additional\.6=-Djava\.net\.preferIPv6Addresses=\).
 sed -i "s/\(.*interface=\).*/\1$GATEWAYIP/g;s/\(.*targetHost=\).*/\1$GATEWAYIP/g" "$I2P/i2ptunnel.config"
 sed -i "s/127\.0\.0\.1/$GATEWAYIP/g" "$I2P/clients.config"
 echo "susimail.host=$GATEWAYIP" >> /usr/share/i2p/susimail.config
-
-#Add the needed Whonix Firewall User Rules so I2P can connect and is reachable by the Worksation
-cat >> "/etc/whonix_firewall.d/50_user.conf" << EOF
-NO_NAT_USERS+=" $(id -u i2psvc)"
-GATEWAY_TRANSPARENT_DNS=1
-GATEWAY_TRANSPARENT_TCP=1
-SOCKS_PORT_I2P_BOB=2827
-SOCKS_PORT_I2P_TAHOE=3456
-SOCKS_PORT_I2P_WWW=4444
-SOCKS_PORT_I2P_WWW2=4445
-SOCKS_PORT_I2P_IRC=6668
-SOCKS_PORT_I2P_XMPP=7622
-SOCKS_PORT_I2P_CONTROL=7650
-SOCKS_PORT_I2P_SOCKSIRC=7651
-SOCKS_PORT_I2P_SOCKS=7652
-SOCKS_PORT_I2P_I2CP=7654
-SOCKS_PORT_I2P_SAM=7656
-SOCKS_PORT_I2P_CON=7657
-SOCKS_PORT_I2P_EEP=7658
-SOCKS_PORT_I2P_SMTP=7659
-SOCKS_PORT_I2P_POP=7660
-SOCKS_PORT_I2P_BOTESMTP=7661
-SOCKS_PORT_I2P_BOTEIMAP=7662
-SOCKS_PORT_I2P_MTN=8998
-EOF
-#Reload Whonix Firewall
-/usr/bin/whonix_firewall
-#Add I2P's paths to Qubes Persistent Folders
-#Currently not working , once Qubes R3.2 is out it will work
-#cat >> "/usr/lib/qubes-bind-dirs.d/40_qubes-whonix.conf" << EOF
-#binds+=( '/etc/i2p' )
-#binds+=( '/var/lib/i2p/i2p-config/' )
-#EOF
-
-#old path /usr/lib/qubes-whonix/bind-directories
-#Currently used method 
-#Add I2P's paths to Qubes Persistent Folders
-sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-directories
-sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
-sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
+echo "Adding WHonix Firewall Rules"
 
 # Tails/Whonix specific router configs:
 # * i2cp: allows java clients to communicate with I2P outside of the JVM. Disabled.
@@ -181,3 +143,52 @@ EOF
 # enforce apparmor
 echo Setting the I2P apparmor profile to enforce mode
 sed  -i -re 's|flags=\(complain\)||' /etc/apparmor.d/system_i2p
+echo"OK"
+
+#Add the needed Whonix Firewall User Rules so I2P can connect and is reachable by the Worksation
+cat >> "/etc/whonix_firewall.d/50_user.conf" << EOF
+NO_NAT_USERS+=" $(id -u i2psvc)"
+GATEWAY_TRANSPARENT_DNS=1
+GATEWAY_TRANSPARENT_TCP=1
+SOCKS_PORT_I2P_BOB=2827
+SOCKS_PORT_I2P_TAHOE=3456
+SOCKS_PORT_I2P_WWW=4444
+SOCKS_PORT_I2P_WWW2=4445
+SOCKS_PORT_I2P_IRC=6668
+SOCKS_PORT_I2P_XMPP=7622
+SOCKS_PORT_I2P_CONTROL=7650
+SOCKS_PORT_I2P_SOCKSIRC=7651
+SOCKS_PORT_I2P_SOCKS=7652
+SOCKS_PORT_I2P_I2CP=7654
+SOCKS_PORT_I2P_SAM=7656
+SOCKS_PORT_I2P_CON=7657
+SOCKS_PORT_I2P_EEP=7658
+SOCKS_PORT_I2P_SMTP=7659
+SOCKS_PORT_I2P_POP=7660
+SOCKS_PORT_I2P_BOTESMTP=7661
+SOCKS_PORT_I2P_BOTEIMAP=7662
+SOCKS_PORT_I2P_MTN=8998
+EOF
+echo"OK"
+echo "Reloading Whonix Firewall"
+#Reload Whonix Firewall
+/usr/bin/whonix_firewall
+sleep 1
+clear
+echo "Adding I2P's paths to Qubes Persistent Folders"
+
+#Add I2P's paths to Qubes Persistent Folders
+#Currently not working , once Qubes R3.2 is out it will work
+#cat >> "/usr/lib/qubes-bind-dirs.d/40_qubes-whonix.conf" << EOF
+#binds+=( '/etc/i2p' )
+#binds+=( '/var/lib/i2p/i2p-config/' )
+#EOF
+
+#old path /usr/lib/qubes-whonix/bind-directories
+#Currently used method 
+#Add I2P's paths to Qubes Persistent Folders
+sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-directories
+sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
+sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
+echo "Changing I2Ps Default Router Config to our needs"
+echo"OK"
