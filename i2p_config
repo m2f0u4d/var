@@ -8,7 +8,8 @@ if [ `id -u ` -ne 0 ]; then
 
     exit 1 
 
-fi 
+fi
+clear
 #TODO Add Qubes Template check
 echo "Disclaimer"
 echo "This script will makes persistent changes to Whonix "
@@ -34,20 +35,13 @@ read ans
 case $ans in 
 
     y*|Y*|j*|J*) 
-
-
         ;; 
-
     *) 
-
         exit 0 
-
         ;; 
-
 esac 
 
-echo "Installing I2P"
-echo
+echo "Installing I2P \n"
 echo"Adding the I2P Repository"
 #Add I2P Repo
 cat  > /etc/apt/sources.list.d/i2p.list << EOF
