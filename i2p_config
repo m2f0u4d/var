@@ -16,17 +16,17 @@ echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
 echo "If you rely on strong Anonymity and are exposed to a large Advesary"
 echo "If thats the case for you Please dont use this !"
-echo " "
-echo "The Author takes no Responsibility if anything breaks"
-echo
+echo "\nThe Author takes no Responsibility if anything breaks \n"
 echo "The following changes will be made:"
 echo "--Add the I2P Repositories"
 echo "--Update the system's packages" 
 echo "--Install I2P, custom Init.d script" 
 echo "--Changes the Default I2P Settings" 
 echo "--Configure I2P to automatically start at boot"
-echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
 echo "--Make I2P's directories persistent \n"
+echo "\n Be sure that you have set the ProxyVM that I2P should run on as the Netvm of this Template!!! \n"
+
+
 echo -n "Are you sure you wish to continue? (y/n)  " 
 
 
@@ -69,7 +69,7 @@ apt-get install i2p i2p-keyring
 
 echo "Configuring I2P"
 
-GATEWAYIP=$(cat /var/cache/qubes-whonix/whonix-ip-gateway)
+GATEWAYIP=$(qubesdb-read /qubes-gateway)
 I2P="/var/lib/i2p/i2p-config/"
 I2PROUTER="/usr/bin/i2prouter"
 WRAPPER="/etc/i2p/wrapper.config"
@@ -79,7 +79,7 @@ sed -i 's/^RUN_DAEMON=.*$/RUN_DAEMON="true"/' /etc/default/i2p
 
 # Remove the "i2prouter" script, its man page, and its apparmor profile
 # since these are not used by Tails:
-rm /etc/apparmor.d/usr.bin.i2prouter /usr/share/man/man1/i2prouter.1.gz
+#rm /etc/apparmor.d/usr.bin.i2prouter /usr/share/man/man1/i2prouter.1.gz
 
 # Install custom i2prouter stub scripts
 for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
@@ -92,6 +92,8 @@ exit 0
 EOF
     chmod 755 "$script"
 done
+
+#TODO Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
 
 # Remove the outproxy from the tunnel on port 4444
 # This will remove the following lines:
@@ -109,12 +111,12 @@ sed -i 's|^clientApp\.0\.args=7657\s\+::1,127\.0\.0\.1|clientApp.0.args=7657 127
 # Disable IPv6 in the wrapper
 sed -i 's|^.*\(wrapper\.java\.additional\.5=-Djava\.net\.preferIPv4Stack=\).*|\1true|' "$WRAPPER"
 sed -i 's|^.*\(wrapper\.java\.additional\.6=-Djava\.net\.preferIPv6Addresses=\).*|\1false|' "$WRAPPER"
-
+echo "Changing I2Ps listening IP"
 #Change the Listening IP from Localhost to the Whonix-Gateway Ip
 sed -i "s/\(.*interface=\).*/\1$GATEWAYIP/g;s/\(.*targetHost=\).*/\1$GATEWAYIP/g" "$I2P/i2ptunnel.config"
 sed -i "s/127\.0\.0\.1/$GATEWAYIP/g" "$I2P/clients.config"
 echo "susimail.host=$GATEWAYIP" >> /usr/share/i2p/susimail.config
-echo "Adding WHonix Firewall Rules"
+echo "OK"
 
 # Tails/Whonix specific router configs:
 # * i2cp: allows java clients to communicate with I2P outside of the JVM. Disabled.
@@ -145,6 +147,27 @@ echo Setting the I2P apparmor profile to enforce mode
 sed  -i -re 's|flags=\(complain\)||' /etc/apparmor.d/system_i2p
 echo"OK"
 
+
+echo "Adding I2P's paths to Qubes Persistent Folders"
+
+#Add I2P's paths to Qubes Persistent Folders
+#Currently not working , once Qubes R3.2 is out it will work
+#cat >> "/usr/lib/qubes-bind-dirs.d/40_qubes-whonix.conf" << EOF
+#binds+=( '/etc/i2p' )
+#binds+=( '/var/lib/i2p/i2p-config/' )
+#EOF
+
+#old path /usr/lib/qubes-whonix/bind-directories
+#Currently used method 
+#Add I2P's paths to Qubes Persistent Folders
+sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-directories
+sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
+sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
+echo "Changing I2Ps Default Router Config to our needs"
+echo"OK"
+
+echo "Adding WHonix Firewall Rules"
+
 #Add the needed Whonix Firewall User Rules so I2P can connect and is reachable by the Worksation
 cat >> "/etc/whonix_firewall.d/50_user.conf" << EOF
 NO_NAT_USERS+=" $(id -u i2psvc)"
@@ -169,26 +192,13 @@ SOCKS_PORT_I2P_BOTESMTP=7661
 SOCKS_PORT_I2P_BOTEIMAP=7662
 SOCKS_PORT_I2P_MTN=8998
 EOF
-echo"OK"
+echo "OK"
+
+
 echo "Reloading Whonix Firewall"
 #Reload Whonix Firewall
 /usr/bin/whonix_firewall
 sleep 1
 clear
-echo "Adding I2P's paths to Qubes Persistent Folders"
 
-#Add I2P's paths to Qubes Persistent Folders
-#Currently not working , once Qubes R3.2 is out it will work
-#cat >> "/usr/lib/qubes-bind-dirs.d/40_qubes-whonix.conf" << EOF
-#binds+=( '/etc/i2p' )
-#binds+=( '/var/lib/i2p/i2p-config/' )
-#EOF
-
-#old path /usr/lib/qubes-whonix/bind-directories
-#Currently used method 
-#Add I2P's paths to Qubes Persistent Folders
-sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-directories
-sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
-sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
-echo "Changing I2Ps Default Router Config to our needs"
-echo"OK"
+echo " Done setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
