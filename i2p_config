@@ -15,13 +15,14 @@ echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
 echo "If you rely on strong Anonymity and are exposed to a large Advesary"
-echo "If thats the case for you Please dont use this !"
+echo "\n !!If any of that's the case Please dont use this !!"
 echo "\nThe Author takes no Responsibility if anything breaks \n"
-echo "The following changes will be made:"
+echo "The following changes will be made:\n"
 echo "--Add the I2P Repositories"
 echo "--Update the system's packages" 
 echo "--Install I2P, custom Init.d script" 
 echo "--Changes the Default I2P Settings" 
+echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
 echo "--Configure I2P to automatically start at boot"
 echo "--Make I2P's directories persistent \n"
 echo "\n Be sure that you have set the ProxyVM that I2P should run on as the Netvm of this Template!!! \n"
@@ -47,7 +48,7 @@ cat  > /etc/apt/sources.list.d/i2p.list << EOF
 deb http://deb.i2p2.no/ stable main
 #deb-src http://deb.i2p2.no/ stable main
 EOF
-echo"OK"
+echo "OK"
 
 sleep 1
 echo "Adding the I2P Repo key if not present"
@@ -145,7 +146,7 @@ EOF
 # enforce apparmor
 echo Setting the I2P apparmor profile to enforce mode
 sed  -i -re 's|flags=\(complain\)||' /etc/apparmor.d/system_i2p
-echo"OK"
+echo "OK"
 
 
 echo "Adding I2P's paths to Qubes Persistent Folders"
@@ -164,7 +165,7 @@ sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-d
 sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
 sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
 echo "Changing I2Ps Default Router Config to our needs"
-echo"OK"
+echo "OK"
 
 echo "Adding WHonix Firewall Rules"
 
@@ -199,6 +200,6 @@ echo "Reloading Whonix Firewall"
 #Reload Whonix Firewall
 /usr/bin/whonix_firewall
 sleep 1
-clear
 
-echo " Done setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
+
+echo "\n Done setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
