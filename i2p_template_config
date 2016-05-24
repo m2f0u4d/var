@@ -15,7 +15,7 @@ echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
 echo "If you rely on strong Anonymity and are exposed to a large Advesary"
-echo "\n !!If any of that's the case Please dont use this !!"
+echo "\n!!If any of that's the case Please dont use this !!"
 echo "\nThe Author takes no Responsibility if anything breaks \n"
 echo "The following changes will be made:\n"
 echo "--Add the I2P Repositories"
@@ -39,7 +39,7 @@ case $ans in
         ;; 
 esac 
 
-echo "Installing I2P \n"
+echo "\nInstalling I2P \n"
 echo "Adding the I2P Repository to the Apt list"
 #Add I2P Repo
 cat  > /etc/apt/sources.list.d/i2p.list << EOF
@@ -49,7 +49,7 @@ EOF
 echo "OK"
 
 sleep 1
-echo "Adding the I2P Repo key if not present"
+echo "\nAdding the I2P Repo key if not present \n"
 # Add the I2P repo key if apt doesn't know about it yet
 if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5BCF 1346" > /dev/null 2>&1; then
     if wget --quiet https://geti2p.net/_static/i2p-debian-repo.key.asc -O $TMPFILE; then
@@ -57,6 +57,7 @@ if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5B
         rm -f $TMPFILE
     else
         # Since fetching with wget failed, let's try getting it from a keyserver
+        echo "Fetching with wget failed, let's try getting it from a keyserver"
         apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0x67ECE5605BCF1346
     fi
 fi
@@ -66,9 +67,23 @@ apt-get install i2p i2p-keyring
 #TODO Decide if we should set predefined settings here
 #echo "i2p i2p/daemon boolean true" | debconf-set-selections
 
+#TODO Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
 
+I2PROUTER="/usr/bin/i2prouter"
 
-echo "Adding I2P's paths to Qubes Persistent Folders"
+# Install custom i2prouter stub scripts
+for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
+    echo "Removing $script"
+    dpkg-divert --rename --add "${script}"
+    cat > "$script" << EOF
+#!/bin/sh
+echo "This script is not used by Whonix."
+exit 0
+EOF
+    chmod 755 "$script"
+done
+
+echo "\nAdding I2P's paths to Qubes Persistent Folders"
 
 #Add I2P's paths to Qubes Persistent Folders
 #Currently not working , once Qubes R3.2 is out it will work
@@ -83,7 +98,6 @@ echo "Adding I2P's paths to Qubes Persistent Folders"
 sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-directories
 sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
 sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
-echo "Changing I2Ps Default Router Config to our needs"
 echo "OK"
 
 echo "Adding WHonix Firewall Rules"
@@ -121,4 +135,4 @@ echo "Reloading Whonix Firewall"
 sleep 1
 
 
-echo "\n Done setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
+echo "\nDone, now please start the ProxyVM of this Template to finish the Setup"
