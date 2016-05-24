@@ -1,0 +1,115 @@
+#!/bin/bash
+#this is the second config script that should be run on the ProxyVm
+
+set -e
+
+if [ `id -u ` -ne 0 ]; then 
+
+    echo "This script must be run as root" 
+
+    exit 1 
+
+fi
+
+echo "Disclaimer \n"
+echo "This script will makes persistent changes to Whonix "
+echo "It could degrease your Anonymity or make Whonix Leak Information"
+echo "If you rely on strong Anonymity and are exposed to a large Advesary"
+echo "\n !!If any of that's the case Please dont use this !!"
+echo "\nThe Author takes no Responsibility if anything breaks \n"
+echo "The following changes will be made:\n"
+echo "--Changes the Default I2P Settings" 
+echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
+echo "--Configure I2P to automatically start at boot"
+echo -n "\nAre you sure you wish to continue? (y/n)  " 
+
+
+read ans 
+case $ans in 
+
+    y*|Y*|j*|J*) 
+        ;; 
+    *) 
+        exit 0 
+        ;; 
+esac 
+
+echo "Configuring I2P"
+
+GATEWAYIP=$(qubesdb-read /qubes-gateway)
+I2P="/var/lib/i2p/i2p-config/"
+I2PROUTER="/usr/bin/i2prouter"
+WRAPPER="/etc/i2p/wrapper.config"
+
+# This must be set in order for the i2p init script to work
+sed -i 's/^RUN_DAEMON=.*$/RUN_DAEMON="true"/' /etc/default/i2p
+
+# Remove the "i2prouter" script, its man page, and its apparmor profile
+# since these are not used by Tails:
+#rm /etc/apparmor.d/usr.bin.i2prouter /usr/share/man/man1/i2prouter.1.gz
+
+# Install custom i2prouter stub scripts
+for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
+    echo "Removing $script"
+    dpkg-divert --rename --add "${script}"
+    cat > "$script" << EOF
+#!/bin/sh
+echo "This script is not used by Whonix."
+exit 0
+EOF
+    chmod 755 "$script"
+done
+
+#TODO Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
+
+# Remove the outproxy from the tunnel on port 4444
+# This will remove the following lines:
+#      tunnel.0.proxyList=false.i2p
+#      tunnel.0.option.i2ptunnel.httpclient.SSLOutproxies=false.i2p
+# The SSLOutproxies option was first set in I2P 0.9.15
+sed -i '/^.*tunnel\.0\.\(proxyList\|option\.i2ptunnel\.httpclient\.SSLOutproxies\)/d' "$I2P/i2ptunnel.config"
+
+# Disable the https outproxy (port 4445)
+sed -i 's|^.*\(tunnel\.6\.startOnLoad\).*|\1=false|' "$I2P/i2ptunnel.config"
+
+# Don't serve the router console on IPv6
+sed -i 's|^clientApp\.0\.args=7657\s\+::1,127\.0\.0\.1|clientApp.0.args=7657 127.0.0.1|' "$I2P/clients.config"
+
+# Disable IPv6 in the wrapper
+sed -i 's|^.*\(wrapper\.java\.additional\.5=-Djava\.net\.preferIPv4Stack=\).*|\1true|' "$WRAPPER"
+sed -i 's|^.*\(wrapper\.java\.additional\.6=-Djava\.net\.preferIPv6Addresses=\).*|\1false|' "$WRAPPER"
+echo "Changing I2Ps listening IP"
+#Change the Listening IP from Localhost to the Whonix-Gateway Ip
+sed -i "s/\(.*interface=\).*/\1$GATEWAYIP/g;s/\(.*targetHost=\).*/\1$GATEWAYIP/g" "$I2P/i2ptunnel.config"
+sed -i "s/127\.0\.0\.1/$GATEWAYIP/g" "$I2P/clients.config"
+echo "susimail.host=$GATEWAYIP" >> /usr/share/i2p/susimail.config
+echo "OK"
+
+# Tails/Whonix specific router configs:
+# * i2cp: allows java clients to communicate with I2P outside of the JVM. Disabled.
+# * IPv6: Disabled
+# * HiddenMode: Enabled
+# * In-I2P Network Updates: Disabled
+# * Inbound connections: Disabled (setting is "i2cp.ntcp.autoip")
+# * Disable I2P plugins
+# * Disable NTP
+cat > "$I2P/router.config" << EOF
+# NOTE: This I2P config file must use UTF-8 encoding
+i2cp.disableInterface=true
+i2np.ntcp.ipv6=false
+i2np.ntcp.autoip=false
+i2np.udp.ipv6=false
+router.isHidden=true
+router.updateDisabled=true
+router.enablePlugins=false
+time.disabled=true
+EOF
+
+cat > "$I2P/susimail.config" << EOF
+susimail.pop3.leave.on.server=true
+EOF
+
+# enforce apparmor
+echo Setting the I2P apparmor profile to enforce mode
+sed  -i -re 's|flags=\(complain\)||' /etc/apparmor.d/system_i2p
+echo "OK"
