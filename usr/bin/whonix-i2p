@@ -7,6 +7,35 @@ set -u
 # and set_best_i2p_router_console_lang().
 . /usr/lib/i2p/i2p.sh
 
+# Get monotonic time in seconds. See clock_gettime(2) for details.
+# Note: we limit ourselves to seconds simply because floating point
+# arithmetic is a PITA in the shell.
+clock_gettime_monotonic() {
+    perl -w -MTime::HiRes=clock_gettime,CLOCK_MONOTONIC \
+         -E 'say int(clock_gettime(CLOCK_MONOTONIC))'
+}
+
+# Run `check_expr` until `timeout` seconds has passed, and sleep
+# `delay` (optional, defaults to 1) seconds in between the calls.
+# Note that execution isn't aborted exactly after `timeout`
+# seconds. In the worst case (the timeout happens right after we check
+# if the timeout has happened) we'll wait in total: `timeout` seconds +
+# `delay` seconds + the time needed for `check_expr`.
+wait_until() {
+    local timeout check_expr delay timeout_at
+    timeout="${1}"
+    check_expr="${2}"
+    delay="${3:-1}"
+    timeout_at=$(expr $(clock_gettime_monotonic) + ${timeout})
+    until eval "${check_expr}"; do
+        if [ "$(clock_gettime_monotonic)" -ge "${timeout_at}" ]; then
+            return 1
+        fi
+        sleep ${delay}
+    done
+    return 0
+}
+
 I2P_STARTUP_TIMEOUT=60
 
 # When there are network problems (either local or remote), it can take up to 3
