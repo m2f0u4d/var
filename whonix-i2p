@@ -93,7 +93,7 @@ case "${1}" in
             systemctl stop i2p
         fi
 
-        systemctly start i2p
+        systemctl start i2p
         notify-send -i /usr/share/icons/anon-icon-pack/i2p-start.png -t 4000 "I2P's router is starting" 
         wait_until_i2p_router_console_is_ready || startup_failure
         notify_router_console_success
