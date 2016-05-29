@@ -36,7 +36,7 @@ esac
 
 echo "\nConfiguring I2P"
 
-GATEWAYIP=$(cat /var/vache/qubes-whonix/whonix-ip-gateway)
+GATEWAYIP=$(cat /var/cache/qubes-whonix/whonix-ip-gateway)
 I2P="/usr/share/i2p/"
 I2PROUTER="/usr/bin/i2prouter"
 WRAPPER="/etc/i2p/wrapper.config"
