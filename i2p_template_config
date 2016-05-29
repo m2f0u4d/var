@@ -23,6 +23,7 @@ echo "--Update the system's packages"
 echo "--Install I2P, custom Init.d script" 
 echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
 echo "--Make I2P's directories persistent \n"
+echo "--Enabling Whonix-Gateways Own Traffic Transparent Proxy feature"
 echo "\n Be sure that you have set the ProxyVM that I2P should run on as the Netvm of this Template!!! \n"
 
 
@@ -55,7 +56,7 @@ if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5B
     if wget --quiet https://geti2p.net/_static/i2p-debian-repo.key.asc -O $TMPFILE; then
         apt-key add $TMPFILE
         rm -f $TMPFILE
-        echo "OK"
+        
     else
         # Since fetching with wget failed, let's try getting it from a keyserver
         echo "Fetching with wget failed, let's try getting it from a keyserver"
@@ -63,9 +64,9 @@ if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5B
         
     fi
 fi
-
+echo "OK"
 apt-get update
-apt-get install i2p i2p-keyring
+apt-get install i2p i2p-keyring -y
 #TODO Decide if we should set predefined settings here
 #echo "i2p i2p/daemon boolean true" | debconf-set-selections
 
@@ -136,12 +137,17 @@ SOCKS_PORT_I2P_MTN=8998
 EOF
 echo "OK"
 
-
 echo "Reloading Whonix Firewall"
 #Reload Whonix Firewall
 /usr/bin/whonix_firewall
 sleep 1
-
+echo "\nEnabling Whonix-Gateways Own Traffic Transparent Proxy feature"
+echo TransPort 127.0.0.1:9041 >> /etc/tor/torrc
+echo DnsPort 127.0.0.1:54 >> /etc/tor/torrc
+echo "OK"
+echo "Reloading Tor"
+sudo service tor@default reload
+echo "OK"
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/
 echo "\nDone, now please restart the ProxyVM of this Template to finish the Setup"

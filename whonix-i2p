@@ -103,6 +103,7 @@ case "${1}" in
         ;;
     stop)
         exec systemctl stop i2p
+        notify-send -i /usr/share/icons/anon-icon-pack/i2p-start.png -t 4000 "I2P's router is Shutting down" 
         ;;
     *)
         echo "invalid argument '${1}'" >&2
