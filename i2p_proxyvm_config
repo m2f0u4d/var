@@ -10,7 +10,7 @@ if [ `id -u ` -ne 0 ]; then
     exit 1 
 
 fi
-
+clear
 echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
@@ -36,8 +36,8 @@ esac
 
 echo "\nConfiguring I2P"
 
-GATEWAYIP=$(qubesdb-read /qubes-gateway)
-I2P="/var/lib/i2p/i2p-config/"
+GATEWAYIP=$(cat /var/vache/qubes-whonix/whonix-ip-gateway)
+I2P="/usr/share/i2p/"
 I2PROUTER="/usr/bin/i2prouter"
 WRAPPER="/etc/i2p/wrapper.config"
 echo "Changing I2Ps Default Router Config to our needs"

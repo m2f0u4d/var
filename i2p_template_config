@@ -55,10 +55,12 @@ if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5B
     if wget --quiet https://geti2p.net/_static/i2p-debian-repo.key.asc -O $TMPFILE; then
         apt-key add $TMPFILE
         rm -f $TMPFILE
+        echo "OK"
     else
         # Since fetching with wget failed, let's try getting it from a keyserver
         echo "Fetching with wget failed, let's try getting it from a keyserver"
         apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-key 0x67ECE5605BCF1346
+        
     fi
 fi
 
@@ -72,16 +74,16 @@ apt-get install i2p i2p-keyring
 I2PROUTER="/usr/bin/i2prouter"
 
 # Install custom i2prouter stub scripts
-for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
-    echo "Removing $script"
-    dpkg-divert --rename --add "${script}"
-    cat > "$script" << EOF
-#!/bin/sh
-echo "This script is not used by Whonix."
-exit 0
-EOF
-    chmod 755 "$script"
-done
+#for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
+#    echo "Removing $script"
+#    dpkg-divert --rename --add "${script}"
+#    cat > "$script" << EOF
+##!/bin/sh
+#echo "This script is not used by Whonix."
+#exit 0
+#EOF
+#    chmod 755 "$script"
+#done
 
 echo "\nAdding I2P's paths to Qubes Persistent Folders"
 
