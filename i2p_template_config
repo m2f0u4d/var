@@ -70,9 +70,15 @@ apt-get install i2p i2p-keyring
 #echo "i2p i2p/daemon boolean true" | debconf-set-selections
 
 #TODO Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
+echo "\nMoving the Scripts and Icons to their proper place "
+mkdir /usr/lib/i2p
+mv i2p.sh /usr/lib/i2p/
+mv whonix-i2p /usr/bin/
+mv i2p-con.png i2p-ready.png i2p-start.png /usr/share/icons/anon-icon-pack
+mv 30_i2p_start.sh /etc/qubes/suspend-post.d/
+mv 30_i2p_restart.sh /etc/qubes/suspend-pre.d/
 
-I2PROUTER="/usr/bin/i2prouter"
-
+#I2PROUTER="/usr/bin/i2prouter"
 # Install custom i2prouter stub scripts
 #for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
 #    echo "Removing $script"
@@ -136,5 +142,6 @@ echo "Reloading Whonix Firewall"
 /usr/bin/whonix_firewall
 sleep 1
 
-
+chown -R i2psvc /usr/share/i2p/ 
+chown -R i2psvc /var/lib/i2p/
 echo "\nDone, now please start the ProxyVM of this Template to finish the Setup"

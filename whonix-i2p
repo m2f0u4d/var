@@ -49,7 +49,7 @@ I2P_TUNNEL_BUILD_TIMEOUT=300
 
 startup_failure() {
 	#Ugly but untill a better solution is found , it works 
-    kdialog --sorry "I2P failed to start \n Something went wrong when I2P was starting. Check the logs in /var/log/i2p for more information." 10 &
+    kdialog --sorry "I2P failed to start \nSomething went wrong when I2P was starting. Check the logs in /var/log/i2p for more information."
     service i2p dump # generate a thread dump
     sleep 5 # Give thread dump ample time to complete
     systemctl stop i2p # clean up, just in case
@@ -65,13 +65,12 @@ wait_until_i2p_has_bootstrapped() {
 }
 
 notify_router_console_success() {
-    kdialog --title "I2P's router console is ready" --passivepopup "You can now access I2P's router console" 5
+    notify-send -i /usr/share/icons/anon-icon-pack/i2p-con.png -t 5000 "I2P's router console is ready" "You can now access I2P's router console"
 
 }
 
 bootstrap_failure() {
-    kdialog --title "I2P is not ready" --passivepopup "Eepsite tunnel not built within six minutes. Check the router console in the I2P Browser or the logs in /var/log/i2p for more information. Reconnect to the network to try again." 5
-
+    notify-send -t 5000 "I2P is not ready" "Eepsite tunnel not built within six minutes. Check the router console in the Tor Browser or the logs in /var/log/i2p for more information. Reconnect to the network to try again."
     exit 1
 }
 
@@ -82,7 +81,7 @@ wait_until_i2p_builds_a_tunnel() {
 }
 
 notify_bootstrap_success() {
-    kdialog --title "I2P is ready" --passivepopup "You can now access services on I2P" 5
+    notify-send -i /usr/share/icons/anon-icon-pack/i2p-ready.png -t 5000 "I2P is ready" "You can now access services on I2P"
 
 }
 
@@ -94,7 +93,8 @@ case "${1}" in
             systemctl stop i2p
         fi
 
-        sudo -u i2psvc i2prouter start
+        systemctly start i2p
+        notify-send -i /usr/share/icons/anon-icon-pack/i2p-start.png -t 4000 "I2P's router is starting" 
         wait_until_i2p_router_console_is_ready || startup_failure
         notify_router_console_success
         wait_until_i2p_has_bootstrapped || bootstrap_failure

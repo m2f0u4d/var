@@ -50,7 +50,7 @@ i2p_built_a_tunnel() {
 }
 
 i2p_router_console_address() {
-    echo 127.0.0.1:7657
+    echo $(cat /var/cache/qubes-whonix/whonix-ip-gateway):7657
 }
 
 i2p_router_console_is_ready() {

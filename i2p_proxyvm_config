@@ -1,5 +1,5 @@
 #!/bin/bash
-#this is the second config script that should be run on the ProxyVm
+#this is the second config script that should be run in the ProxyVm
 
 set -e
 
@@ -105,5 +105,7 @@ EOF
 #sed  -i -re 's|flags=\(complain\)||' /etc/apparmor.d/system_i2p
 #echo "OK"
 
+chown -R i2psvc /usr/share/i2p/ 
+chown -R i2psvc /var/lib/i2p/
 echo "\nDone setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
 
