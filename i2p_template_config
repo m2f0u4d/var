@@ -21,8 +21,7 @@ echo "\nThe Author takes no Responsibility if anything breaks \n"
 echo "The following changes will be made:\n"
 echo "--Add the I2P Repositories"
 echo "--Update the system's packages" 
-echo "--Install I2P, Foxyproxy custom Init.d script"
-echo "--Add custom Foxyproxy Rules to TorBrowser"
+echo "--Install I2P, custom Init.d script"
 echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
 echo "--Make I2P's directories persistent \n"
 echo "--Enabling Whonix-Gateways Own Traffic Transparent Proxy feature"
@@ -31,7 +30,7 @@ echo "\n Be sure that you have set the ProxyVM that I2P should run on as the Net
 
 echo -n "Are you sure you wish to continue? (y/n)  " 
 
-
+# TODO refactor this script make it dynamic and more failsafe 
 read ans 
 case $ans in 
 
@@ -95,7 +94,7 @@ mv 30_i2p_restart.sh /etc/qubes/suspend-pre.d/
 #done
 
 echo "\nAdding I2P's paths to Qubes Persistent Folders"
-
+#TODO Add check which Whonix version were on and act accordingly
 #Add I2P's paths to Qubes Persistent Folders
 #Currently not working , once Qubes R3.2 is out it will work
 #cat >> "/usr/lib/qubes-bind-dirs.d/40_qubes-whonix.conf" << EOF
@@ -111,11 +110,7 @@ sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'
 sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
 echo "OK"
 
-#create symlink and copy custom foxyproxy rules 
-echo "\nAdding custom Foxyproxy Rules to TorBrowser" 
-ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
-cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
-echo "OK"
+
 
 echo "Adding WHonix Firewall Rules"
 
