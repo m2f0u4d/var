@@ -9,6 +9,7 @@ if [ `id -u ` -ne 0 ]; then
     exit 1 
 
 fi
+
 clear
 #TODO Add Qubes Template check
 echo "Disclaimer \n"
@@ -20,7 +21,8 @@ echo "\nThe Author takes no Responsibility if anything breaks \n"
 echo "The following changes will be made:\n"
 echo "--Add the I2P Repositories"
 echo "--Update the system's packages" 
-echo "--Install I2P, custom Init.d script" 
+echo "--Install I2P, Foxyproxy custom Init.d script"
+echo "--Add custom Foxyproxy Rules to TorBrowser"
 echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
 echo "--Make I2P's directories persistent \n"
 echo "--Enabling Whonix-Gateways Own Traffic Transparent Proxy feature"
@@ -66,7 +68,7 @@ if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5B
 fi
 echo "OK"
 apt-get update
-apt-get install i2p i2p-keyring -y
+apt-get install i2p i2p-keyring xul-ext-foxyproxy-standard -y
 #TODO Decide if we should set predefined settings here
 #echo "i2p i2p/daemon boolean true" | debconf-set-selections
 
@@ -107,6 +109,12 @@ echo "\nAdding I2P's paths to Qubes Persistent Folders"
 sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-directories
 sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
 sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
+echo "OK"
+
+#create symlink and copy custom foxyproxy rules 
+echo "\nAdding custom Foxyproxy Rules to TorBrowser" 
+ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
+cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
 echo "OK"
 
 echo "Adding WHonix Firewall Rules"
