@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -e
+
+if [ `id -u ` -ne 0 ]; then 
+
+    echo "This script must be run as root" 
+
+    exit 1 
+
+fi
+#TODO Add Qubes Template check
+
+echo "Disclaimer \n"
+echo "This script will makes persistent changes to Whonix "
+echo "It could degrease your Anonymity or make Whonix Leak Information"
+echo "If you rely on strong Anonymity and are exposed to a large Advesary"
+echo "\n!!If any of that's the case Please dont use this !!"
+echo "\nThe Author takes no Responsibility if anything breaks \n"
+echo "The following changes will be made:\n"
+echo "\n Add Whonix-I2P Socat Port forwarding Init.d script"
+echo "Install Foxyproxy with custom Proxy Rules"
+echo -n "Are you sure you wish to continue? (y/n)  " 
+
+read ans 
+case $ans in 
+
+    y*|Y*|j*|J*) 
+        ;; 
+    *) 
+        exit 0 
+        ;; 
+esac 
+
+echo "Installing Foxyproxy"
+apt-get update && apt-get install xul-ext-foxyproxy-standard -y
+
+echo "Downloading Whonix-I2P Socat Init.d script"
+curl https://raw.githubusercontent.com/cle4r/var/master/i2p-whonix-socat-ws -o i2p-whonix-socat-ws
+cp i2p-whonix-socat-ws /etc/init.d/i2p-whonix-socat-ws
+chmod +x /etc/init.d/i2p-whonix-socat-ws
+update-rc.d i2p-whonix-socat-ws defaults
+echo "OK"
++#create symlink and copy custom foxyproxy rules 
++echo "\nAdding custom Foxyproxy Rules to TorBrowser" 
++ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
++cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
++echo "OK"
+# TODO refactor this script make it dynamic and more failsafe 
+# Add Testing Port forwarding

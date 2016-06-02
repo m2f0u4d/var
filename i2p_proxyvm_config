@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #this is the second config script that should be run in the ProxyVm
 
 set -e
