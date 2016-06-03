@@ -97,7 +97,7 @@ time.disabled=true
 router.reseedProxy.authEnable=false
 router.reseedProxyEnable=true
 router.reseedProxyHost=127.0.0.1
-router.reseedProxyPort=9041
+router.reseedProxyPort=9050
 EOF
 
 cat > "$I2P/susimail.config" << EOF
