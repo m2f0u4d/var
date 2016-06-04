@@ -80,18 +80,18 @@ mv i2p-con.png i2p-ready.png i2p-start.png /usr/share/icons/anon-icon-pack
 mv 30_i2p_start.sh /etc/qubes/suspend-post.d/
 mv 30_i2p_restart.sh /etc/qubes/suspend-pre.d/
 
-#I2PROUTER="/usr/bin/i2prouter"
+I2PROUTER="/usr/bin/i2prouter"
 # Install custom i2prouter stub scripts
-#for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
-#    echo "Removing $script"
-#    dpkg-divert --rename --add "${script}"
-#    cat > "$script" << EOF
-##!/bin/sh
-#echo "This script is not used by Whonix."
-#exit 0
-#EOF
-#    chmod 755 "$script"
-#done
+for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
+    echo "Removing $script"
+    dpkg-divert --rename --add "${script}"
+    cat > "$script" << EOF
+#!/bin/sh
+echo "This script is not used by Whonix.\nUse sudo whonix-i2p start"
+exit 0
+EOF
+    chmod 755 "$script"
+done
 
 echo "\nAdding I2P's paths to Qubes Persistent Folders"
 #TODO Add check which Whonix version were on and act accordingly
@@ -112,7 +112,7 @@ echo "OK"
 
 
 
-echo "Adding WHonix Firewall Rules"
+echo "Adding Whonix Firewall Rules"
 
 #Add the needed Whonix Firewall User Rules so I2P can connect and is reachable by the Worksation
 cat >> "/etc/whonix_firewall.d/50_user.conf" << EOF
