@@ -33,7 +33,7 @@ case $ans in
 esac 
 
 echo "Installing Foxyproxy"
-apt-get update && apt-get install xul-ext-foxyproxy-standard -y
+apt-get update && apt-get install xul-ext-foxyproxy-standard
 
 echo "Downloading Whonix-I2P Socat Init.d script"
 scurl https://raw.githubusercontent.com/cle4r/var/master/i2p-whonix-socat-ws -o i2p-whonix-socat-ws

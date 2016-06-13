@@ -97,7 +97,7 @@ echo "\nAdding I2P's paths to Qubes Persistent Folders"
 #TODO Add check which Whonix version were on and act accordingly
 #Add I2P's paths to Qubes Persistent Folders
 #Currently not working , once Qubes R3.2 is out it will work
-#cat >> "/usr/lib/qubes-bind-dirs.d/40_qubes-whonix.conf" << EOF
+#cat >> "/usr/lib/qubes-bind-dirs.d/50_qubes-whonix.conf" << EOF
 #binds+=( '/etc/i2p' )
 #binds+=( '/var/lib/i2p/i2p-config/' )
 #EOF
@@ -130,7 +130,6 @@ SOCKS_PORT_I2P_SOCKSIRC=7651
 SOCKS_PORT_I2P_SOCKS=7652
 SOCKS_PORT_I2P_I2CP=7654
 SOCKS_PORT_I2P_SAM=7656
-SOCKS_PORT_I2P_CON=7657
 SOCKS_PORT_I2P_EEP=7658
 SOCKS_PORT_I2P_SMTP=7659
 SOCKS_PORT_I2P_POP=7660

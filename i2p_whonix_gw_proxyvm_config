@@ -72,6 +72,8 @@ echo "Changing I2Ps listening IP"
 #Change the Listening IP from Localhost to the Whonix-Gateway Ip
 sed -i "s/\(.*interface=\).*/\1$GATEWAYIP/g;s/\(.*targetHost=\).*/\1$GATEWAYIP/g" "$I2P/i2ptunnel.config"
 sed -i "s/127\.0\.0\.1/$GATEWAYIP/g" "$I2P/clients.config"
+#changing the console back to localhost
+sed -i "s/clientApp\.0\.args\=7657 \:\:1\,$GATEWAYIP/clientApp\.0\.args\=7657 \:\:1\,127\.0\.0\.1 \./g" "$I2P/clients.config"
 echo "susimail.host=$GATEWAYIP" >> /usr/share/i2p/susimail.config
 echo "OK"
 
@@ -80,20 +82,16 @@ echo "OK"
 # * HiddenMode: Enabled
 # * In-I2P Network Updates: Disabled
 # * Inbound connections: Disabled (setting is "i2cp.ntcp.autoip")
-# * Disable I2P plugins
 # * Disable external NTP queries and GeoIP
 # * Reseed via Tor
 # * Disable upnp
 cat > "$I2P/router.config" << EOF
 # NOTE: This I2P config file must use UTF-8 encoding
-i2cp.disableInterface=false
 i2np.ntcp.ipv6=false
-i2np.ntcp.autoip=false
 i2np.udp.ipv6=false
 router.isHidden=true
 router.sharePercentage=0
 router.updateDisabled=true
-router.enablePlugins=false
 time.disabled=true
 time.sntpServerList=127.0.0.1
 router.reseedProxy.authEnable=false
@@ -102,7 +100,6 @@ router.reseedProxyHost=127.0.0.1
 router.reseedProxyPort=9050
 router.reseedSSLDisable=true 
 router.reseedSSLRequired=false
-router.sharePercentage=0
 i2np.upnp.enable=false
 EOF
 
