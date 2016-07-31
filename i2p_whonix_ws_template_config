@@ -33,12 +33,7 @@ apt-get update && apt-get install xul-ext-foxyproxy-standard
 +ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
 +cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
 +echo "OK"
-echo "Downloading Whonix-I2P Socat Init.d script"
-scurl https://raw.githubusercontent.com/cle4r/var/master/i2p-whonix-socat-ws -o i2p-whonix-socat-ws
-cp i2p-whonix-socat-ws /etc/init.d/i2p-whonix-socat-ws
-chmod +x /etc/init.d/i2p-whonix-socat-ws
-update-rc.d i2p-whonix-socat-ws defaults
-echo "OK"
+mv i2p-whonix-socat-ws
 
 # TODO refactor this script make it dynamic and more failsafe 
 # Add Testing Port forwarding
@@ -50,10 +45,11 @@ echo "OK"
 qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
 
 
-if [ "$qubes_vm_type" = "AppVM" ]; then
+if [ "$qubes_vm_type" = "TemplateVM" ]; then
     disclaimer
     if [ -e /usr/share/anon-ws-base-files/workstation ]; then
-        config_ws
+        #config_ws
+        echo "it works"
     fi
     
 fi
