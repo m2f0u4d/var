@@ -31,7 +31,7 @@ esac
 config_i2p(){
 echo "\nConfiguring I2P"
 
-GATEWAYIP=$(cat /var/cache/qubes-whonix/whonix-ip-gateway)
+GATEWAYIP=$(sudo ifconfig eth1 | grep "inet" | cut -d ":" -f 2 | cut -d "B" -f 1)
 I2P="/usr/share/i2p/"
 I2PROUTER="/usr/bin/i2prouter"
 WRAPPER="/etc/i2p/wrapper.config"
@@ -109,24 +109,17 @@ EOF
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/
 echo "\nDone setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
-echo "Reloading Tor"
-sudo service tor@default reload
 }
 
-
 qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
-if [ -e /usr/share/anon-gw-base-files/gateway ]; then
-    
-   
-fi
+
 
 if [ "$qubes_vm_type" = "ProxyVM" ]; then
-    
-    # Display warning that TemplateVM is not connected to a Tor update proxy.
-    if [ ! -e '/var/run/qubes-service/whonix-secure-proxy' ]; then
-        /usr/lib/qubes-whonix/alert update /usr/lib/qubes-whonix/messages.yaml
-    fi    
-    disclaimer
-    config_i2p
+
+    if [ -e /usr/share/anon-gw-base-files/gateway ]; then
+        disclaimer
+        config_i2p
+    fi
+
     
 fi
