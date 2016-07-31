@@ -2,16 +2,8 @@
 
 set -e
 
-if [ `id -u ` -ne 0 ]; then 
 
-    echo "This script must be run as root" 
-
-    exit 1 
-
-fi
-
-clear
-#TODO Add Qubes Template check
+disclaimer() {
 echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
@@ -40,7 +32,9 @@ case $ans in
         exit 0 
         ;; 
 esac 
+}
 
+install_i2p() {
 echo "\nInstalling I2P \n"
 echo "Adding the I2P Repository to the Apt list"
 #Add I2P Repo
@@ -93,15 +87,30 @@ EOF
     chmod 755 "$script"
 done
 
-echo "\nAdding I2P's paths to Qubes Persistent Folders"
-#TODO Add check which Whonix version were on and act accordingly
-#Add I2P's paths to Qubes Persistent Folders
-#Currently not working , once Qubes R3.2 is out it will work
-#cat >> "/usr/lib/qubes-bind-dirs.d/50_qubes-whonix.conf" << EOF
-#binds+=( '/etc/i2p' )
-#binds+=( '/var/lib/i2p/i2p-config/' )
-#EOF
+check_qubes_version
+setup_firewall_rules
+}
 
+check_qubes_version(){
+	if [ -e /usr/lib/qubes/bind-dirs.sh ] || [ -e /usr/lib/qubes/init/bind-dirs.sh ] ; then
+		setup_persistent_path_qubes32
+
+	else
+		setup_persistent_path_qubes31
+	fi	
+}
+
+setup_persistent_path_qubes32(){
+	
+echo "\nAdding I2P's paths to Qubes Persistent Folders"
+#Add I2P's paths to Qubes Persistent Folders
+cat >> "/usr/lib/qubes-bind-dirs.d/50_qubes-whonix.conf" << EOF
+binds+=( '/etc/i2p' )
+binds+=( '/var/lib/i2p/i2p-config/' )
+EOF
+}
+
+setup_persistent_path_qubes31(){
 #old path /usr/lib/qubes-whonix/bind-directories
 #Currently used method 
 #Add I2P's paths to Qubes Persistent Folders
@@ -109,9 +118,9 @@ sed -i "70i \    '/rw/srv/whonix/etc/i2p:/etc/i2p'" /usr/lib/qubes-whonix/bind-d
 sed -i "71i \    '/rw/srv/whonix/var/lib/i2p/i2p-config:/var/lib/i2p/i2p-config'" /usr/lib/qubes-whonix/bind-directories
 sed -i "72i \    '/rw/srv/whonix/usr/share/i2p:/usr/share/i2p'" /usr/lib/qubes-whonix/bind-directories
 echo "OK"
+}
 
-
-
+setup_firewall_rules(){
 echo "Adding Whonix Firewall Rules"
 
 #Add the needed Whonix Firewall User Rules so I2P can connect and is reachable by the Worksation
@@ -153,3 +162,29 @@ echo "OK"
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/
 echo "\nDone, now please restart the ProxyVM of this Template to finish the Setup"
+}
+
+if [ `id -u ` -ne 0 ]; then 
+
+    echo "This script must be run as root" 
+
+    exit 1 
+
+fi
+
+qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
+if [ -e /usr/share/anon-gw-base-files/gateway ]; then
+    echo "Disclaimer \n"
+   
+fi
+
+if [ "$qubes_vm_type" = "TemplateVM" ]; then
+    echo "Disclaimer \n"
+    # Display warning that TemplateVM is not connected to a Tor update proxy.
+    if [ ! -e '/var/run/qubes-service/whonix-secure-proxy' ]; then
+        /usr/lib/qubes-whonix/alert update /usr/lib/qubes-whonix/messages.yaml
+    fi    
+    disclaimer
+    install_i2p
+    
+fi

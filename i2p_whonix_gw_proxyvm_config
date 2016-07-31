@@ -3,14 +3,8 @@
 
 set -e
 
-if [ `id -u ` -ne 0 ]; then 
 
-    echo "This script must be run as root" 
-
-    exit 1 
-
-fi
-clear
+disclaimer(){
 echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
@@ -33,7 +27,8 @@ case $ans in
         exit 0 
         ;; 
 esac 
-
+}
+config_i2p(){
 echo "\nConfiguring I2P"
 
 GATEWAYIP=$(cat /var/cache/qubes-whonix/whonix-ip-gateway)
@@ -47,7 +42,6 @@ sed -i 's/^RUN_DAEMON=.*$/RUN_DAEMON="true"/' /etc/default/i2p
 
 # Remove the "i2prouter" script, its man page, and its apparmor profile
 #rm /etc/apparmor.d/usr.bin.i2prouter /usr/share/man/man1/i2prouter.1.gz
-
 
 
 #TODO Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
@@ -115,4 +109,21 @@ EOF
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/
 echo "\nDone setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
+}
 
+qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
+if [ -e /usr/share/anon-gw-base-files/gateway ]; then
+    
+   
+fi
+
+if [ "$qubes_vm_type" = "ProxyVM" ]; then
+    
+    # Display warning that TemplateVM is not connected to a Tor update proxy.
+    if [ ! -e '/var/run/qubes-service/whonix-secure-proxy' ]; then
+        /usr/lib/qubes-whonix/alert update /usr/lib/qubes-whonix/messages.yaml
+    fi    
+    disclaimer
+    config_i2p
+    
+fi
