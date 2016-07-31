@@ -2,15 +2,7 @@
 
 set -e
 
-if [ `id -u ` -ne 0 ]; then 
-
-    echo "This script must be run as root" 
-
-    exit 1 
-
-fi
-#TODO Add Qubes Template check
-
+disclaimer(){
 echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
@@ -31,20 +23,37 @@ case $ans in
         exit 0 
         ;; 
 esac 
-
+}
+config_ws(){
 echo "Installing Foxyproxy"
 apt-get update && apt-get install xul-ext-foxyproxy-standard
 
++#create symlink and copy custom foxyproxy rules 
++echo "\nAdding custom Foxyproxy Rules to TorBrowser" 
++ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
++cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
++echo "OK"
 echo "Downloading Whonix-I2P Socat Init.d script"
 scurl https://raw.githubusercontent.com/cle4r/var/master/i2p-whonix-socat-ws -o i2p-whonix-socat-ws
 cp i2p-whonix-socat-ws /etc/init.d/i2p-whonix-socat-ws
 chmod +x /etc/init.d/i2p-whonix-socat-ws
 update-rc.d i2p-whonix-socat-ws defaults
 echo "OK"
-+#create symlink and copy custom foxyproxy rules 
-+echo "\nAdding custom Foxyproxy Rules to TorBrowser" 
-+ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
-+cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
-+echo "OK"
+
 # TODO refactor this script make it dynamic and more failsafe 
 # Add Testing Port forwarding
+#cat >> "/etc/anon-ws-disable-stacked-tor.d/50_user.conf" << EOF
+#EOF
+echo "OK"
+}
+
+qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
+
+
+if [ "$qubes_vm_type" = "AppVM" ]; then
+    disclaimer
+    if [ -e /usr/share/anon-ws-base-files/workstation ]; then
+        config_ws
+    fi
+    
+fi
