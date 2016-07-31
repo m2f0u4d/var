@@ -13,7 +13,7 @@
 the (cloned) Whonix GW Template.
 Start the ProxyVM (sys-i2p) and run `i2p_whonix_gw_proxyvm_config` as root , reboot the ProxyVM (sys-i2p)
 - Download the Repo to your (cloned) Whonix WS Template and run `i2p_whonix_ws_template_config`
-- Now you can run 'sudo whonix-i2p start &' on your ProxyVM (sys-i2p) to start the I2P Router 
+- Now you can run `sudo whonix-i2p start &` on your ProxyVM (sys-i2p) to start the I2P Router 
 
 
 `sudo tail -f /var/log/i2p/wrapper.log` for debuging
