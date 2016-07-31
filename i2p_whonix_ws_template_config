@@ -28,11 +28,11 @@ config_ws(){
 echo "Installing Foxyproxy"
 apt-get update && apt-get install xul-ext-foxyproxy-standard
 
-+#create symlink and copy custom foxyproxy rules 
-+echo "\nAdding custom Foxyproxy Rules to TorBrowser" 
-+ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
-+cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
-+echo "OK"
+#create symlink and copy custom foxyproxy rules 
+echo "\nAdding custom Foxyproxy Rules to TorBrowser" 
+ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
+cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
+echo "OK"
 mv i2p-whonix-socat-ws
 
 # TODO refactor this script make it dynamic and more failsafe 
