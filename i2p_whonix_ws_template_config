@@ -48,8 +48,8 @@ qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
 if [ "$qubes_vm_type" = "TemplateVM" ]; then
     disclaimer
     if [ -e /usr/share/anon-ws-base-files/workstation ]; then
-        #config_ws
-        echo "it works"
+        config_ws
+        
     fi
     
 fi
