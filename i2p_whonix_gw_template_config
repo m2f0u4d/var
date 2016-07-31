@@ -17,7 +17,9 @@ echo "--Install I2P, custom Init.d script"
 echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
 echo "--Make I2P's directories persistent \n"
 echo "--Enabling Whonix-Gateways Own Traffic Transparent Proxy feature"
-echo "\n Be sure that you have set the ProxyVM that I2P should run on as the Netvm of this Template!!! \n"
+
+
+echo "Be sure that you have set the ProxyVM that I2P should run on as the Netvm of this Template!!! \n"
 
 
 echo -n "Are you sure you wish to continue? (y/n)  " 
@@ -156,9 +158,7 @@ echo "\nEnabling Whonix-Gateways Own Traffic Transparent Proxy feature"
 echo TransPort 127.0.0.1:9041 >> /etc/tor/torrc
 echo DnsPort 127.0.0.1:54 >> /etc/tor/torrc
 echo "OK"
-echo "Reloading Tor"
-sudo service tor@default reload
-echo "OK"
+
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/
 echo "\nDone, now please restart the ProxyVM of this Template to finish the Setup"

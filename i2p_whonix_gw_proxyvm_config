@@ -109,7 +109,10 @@ EOF
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/
 echo "\nDone setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
+echo "Reloading Tor"
+sudo service tor@default reload
 }
+
 
 qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
 if [ -e /usr/share/anon-gw-base-files/gateway ]; then

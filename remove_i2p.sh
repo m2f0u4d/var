@@ -54,7 +54,16 @@ case $ans in
 esac 
 }
 
-remove_i2p(){
+remove_i2p_ws(){
+apt-get remove xul-ext-foxyproxy-standard
+rm /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
+
+#remove socat forwarding
+
+	
+	}
+
+remove_i2p_gw(){
 echo "Removing I2P"
 apt-get remove i2p
 clear
@@ -105,9 +114,7 @@ done
 }
 echo "OK"
 qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
-if [ -e /usr/share/anon-gw-base-files/gateway ]; then
-    disclaimer   
-fi
+
 
 if [ "$qubes_vm_type" = "TemplateVM" ]; then
     
@@ -115,7 +122,12 @@ if [ "$qubes_vm_type" = "TemplateVM" ]; then
     if [ ! -e '/var/run/qubes-service/whonix-secure-proxy' ]; then
         /usr/lib/qubes-whonix/alert update /usr/lib/qubes-whonix/messages.yaml
     fi    
+    if [ -e /usr/share/anon-gw-base-files/gateway ]; then
+        disclaimer  
+        remove_i2p_gw
+    elif [-e /usr/share/anon-ws-base-files/worksation ]; then
+        remove_i2p_ws 
+    fi
     
-    remove_i2p
     
 fi
