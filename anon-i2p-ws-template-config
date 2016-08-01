@@ -33,7 +33,9 @@ echo "\nAdding custom Foxyproxy Rules to TorBrowser"
 ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
 cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
 echo "OK"
-mv i2p-whonix-socat-ws
+mv i2p-whonix-socat-ws /etc/init.d/i2p-whonix-socat-ws
+chmod +x /etc/init.d/i2p-whonix-socat-ws
+update-rc.d i2p-whonix-socat-ws defaults
 
 # TODO refactor this script make it dynamic and more failsafe 
 # Add Testing Port forwarding

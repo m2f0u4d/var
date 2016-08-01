@@ -32,7 +32,7 @@ config_i2p(){
 echo "\nConfiguring I2P"
 
 GATEWAYIP=$(ifconfig eth1 | grep "inet" | cut -d ":" -f 2 | cut -d "B" -f 1)
-I2P="/usr/share/i2p/"
+I2P="/var/lib/i2p/i2p-config/"
 I2PROUTER="/usr/bin/i2prouter"
 WRAPPER="/etc/i2p/wrapper.config"
 echo "Changing I2Ps Default Router Config to our needs"
@@ -67,7 +67,7 @@ echo "Changing I2Ps listening IP"
 sed -i "s/\(.*interface=\).*/\1$GATEWAYIP/g;s/\(.*targetHost=\).*/\1$GATEWAYIP/g" "$I2P/i2ptunnel.config"
 sed -i "s/127\.0\.0\.1/$GATEWAYIP/g" "$I2P/clients.config"
 #changing the console back to localhost
-sed -i "s/clientApp\.0\.args\=7657 \:\:1\,$GATEWAYIP/clientApp\.0\.args\=7657 \:\:1\,127\.0\.0\.1 \./g" "$I2P/clients.config"
+sed -i "s/clientApp\.0\.args\=7657 \:\:1\,$GATEWAYIP/clientApp\.0\.args\=7657 \:\:1\,127\.0\.0\.1 \./g" $I2P/clients.config
 echo "susimail.host=$GATEWAYIP" >> /usr/share/i2p/susimail.config
 echo "OK"
 
