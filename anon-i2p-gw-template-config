@@ -8,8 +8,8 @@ echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
 echo "If you rely on strong Anonymity and are exposed to a large Advesary"
-echo "\n!!If any of that's the case Please dont use this !!"
-echo "\nThe Author takes no Responsibility if anything breaks \n"
+echo "!!If any of that's the case Please dont use this !!"
+echo "The Author takes no Responsibility if anything breaks \n"
 echo "The following changes will be made:\n"
 echo "--Add the I2P Repositories"
 echo "--Update the system's packages" 
@@ -19,12 +19,9 @@ echo "--Make I2P's directories persistent \n"
 echo "--Enabling Whonix-Gateways Own Traffic Transparent Proxy feature"
 
 
-echo "Be sure that you have set the ProxyVM that I2P should run on as the Netvm of this Template!!! \n"
-
 
 echo -n "Are you sure you wish to continue? (y/n)  " 
 
-# TODO refactor this script make it dynamic and more failsafe 
 read ans 
 case $ans in 
 
@@ -47,7 +44,7 @@ EOF
 echo "OK"
 
 sleep 1
-echo "\nAdding the I2P Repo key if not present \n"
+echo "Adding the I2P Repo key if not present "
 # Add the I2P repo key if apt doesn't know about it yet
 if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5BCF 1346" > /dev/null 2>&1; then
     if wget --quiet https://geti2p.net/_static/i2p-debian-repo.key.asc -O $TMPFILE; then
@@ -83,7 +80,7 @@ for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
     dpkg-divert --rename --add "${script}"
     cat > "$script" << EOF
 #!/bin/sh
-echo "This script is not used by Whonix.\nUse sudo whonix-i2p start"
+echo "This script is not used by Whonix.\nUse sudo i2p-launcher start"
 exit 0
 EOF
     chmod 755 "$script"
@@ -126,10 +123,12 @@ setup_firewall_rules(){
 echo "Adding Whonix Firewall Rules"
 
 #Add the needed Whonix Firewall User Rules so I2P can connect and is reachable by the Worksation
-cat >> "/etc/whonix_firewall.d/50_user.conf" << EOF
+if grep -Fxq "SOCKS_PORT_I2P_WWW=4444" /etc/whonix_firewall.d/50_user.conf
+then
+    echo "Skipping Firewall Rules"
+else
+    cat >> "/etc/whonix_firewall.d/50_user.conf" << EOF
 NO_NAT_USERS+=" $(id -u i2psvc)"
-GATEWAY_TRANSPARENT_DNS=1
-GATEWAY_TRANSPARENT_TCP=1
 SOCKS_PORT_I2P_BOB=2827
 SOCKS_PORT_I2P_TAHOE=3456
 SOCKS_PORT_I2P_WWW=4444
@@ -149,15 +148,15 @@ SOCKS_PORT_I2P_BOTEIMAP=7662
 SOCKS_PORT_I2P_MTN=8998
 EOF
 echo "OK"
+fi
+
+
 
 echo "Reloading Whonix Firewall"
 #Reload Whonix Firewall
 /usr/bin/whonix_firewall
 sleep 1
-echo "\nEnabling Whonix-Gateways Own Traffic Transparent Proxy feature"
-echo TransPort 127.0.0.1:9041 >> /etc/tor/torrc
-echo DnsPort 127.0.0.1:54 >> /etc/tor/torrc
-echo "OK"
+
 
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/

@@ -9,8 +9,8 @@ echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
 echo "If you rely on strong Anonymity and are exposed to a large Advesary"
-echo "\n !!If any of that's the case Please dont use this !!"
-echo "\nThe Author takes no Responsibility if anything breaks \n"
+echo "!!If any of that's the case Please dont use this !!"
+echo "The Author takes no Responsibility if anything breaks \n"
 echo "The following changes will be made: \n"
 echo "--Changes the Default I2P Settings" 
 echo "--Configure Firewall Settings to Only Allow I2P to connect to the Clearnet"
@@ -42,9 +42,6 @@ sed -i 's/^RUN_DAEMON=.*$/RUN_DAEMON="true"/' /etc/default/i2p
 
 # Remove the "i2prouter" script, its man page, and its apparmor profile
 #rm /etc/apparmor.d/usr.bin.i2prouter /usr/share/man/man1/i2prouter.1.gz
-
-
-#TODO Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
 
 # Remove the outproxy from the tunnel on port 4444
 # This will remove the following lines:
@@ -106,13 +103,13 @@ EOF
 #sed  -i -re 's|flags=\(complain\)||' /etc/apparmor.d/system_i2p
 #echo "OK"
 
+#changing the nameserver to the connected firewallVM to let I2P Bootstrap 
 sed -i "s/nameserver 127.0.0.1/nameserver $(qubesdb-read /qubes-gateway)/g" /etc/resolv.conf
 
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/
--echo "Reloading Tor"
--sudo service tor@default reload
-echo "\nDone setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
+
+echo "Done setting Everything Up , on the next Reboot of your ProxyVm \n I2P should start up and you can access it via your Whonix-Workstation"
 }
 
 qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
