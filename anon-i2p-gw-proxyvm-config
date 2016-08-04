@@ -38,7 +38,7 @@ case $ans in
 esac 
 }
 config_i2p(){
-echo "\nConfiguring I2P"
+echo "Configuring I2P"
 
 
 echo "Changing I2Ps Default Router Config to our needs"

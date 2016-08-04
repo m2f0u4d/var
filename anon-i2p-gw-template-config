@@ -73,7 +73,7 @@ echo "\nMoving the Scripts and Icons to their proper place "
 if [ ! -d /usr/lib/i2p/ ]; thenkdir /usr/lib/i2p
 mv i2p.sh /usr/lib/i2p/
 mv i2p-launcher /usr/bin/
-mv i2p-con.png i2p-ready.png i2p-start.png /usr/share/icons/anon-icon-pack
+mv /res/*.png /usr/share/icons/anon-icon-pack
 mv 30_i2p_start.sh /etc/qubes/suspend-post.d/
 mv 30_i2p_restart.sh /etc/qubes/suspend-pre.d/
 echo "[Moving Scripts] OK" >> $LOGPATH 
