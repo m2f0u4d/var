@@ -1,7 +1,10 @@
 #!/bin/sh
 
+
+
 set -e
 
+LOGPATH="/var/log/anon-i2p-config.log"
 
 disclaimer() {
 echo "Disclaimer \n"
@@ -34,7 +37,7 @@ esac
 }
 
 install_i2p() {
-echo "\nInstalling I2P \n"
+echo "Installing I2P \n"
 echo "Adding the I2P Repository to the Apt list"
 #Add I2P Repo
 cat  > /etc/apt/sources.list.d/i2p.list << EOF
@@ -58,21 +61,22 @@ if ! apt-key fingerprint | fgrep -q "7840 E761 0F28 B904 7535  49D7 67EC E560 5B
         
     fi
 fi
+echo "[I2P Key Added] OK" >> $LOGPATH 
 echo "OK"
 apt-get update
 apt-get install i2p i2p-keyring
 #TODO Decide if we should set predefined settings here
 #echo "i2p i2p/daemon boolean true" | debconf-set-selections
 
-#TODO Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
+#Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
 echo "\nMoving the Scripts and Icons to their proper place "
-mkdir /usr/lib/i2p
+if [ ! -d /usr/lib/i2p/ ]; thenkdir /usr/lib/i2p
 mv i2p.sh /usr/lib/i2p/
-mv whonix-i2p /usr/bin/
+mv i2p-launcher /usr/bin/
 mv i2p-con.png i2p-ready.png i2p-start.png /usr/share/icons/anon-icon-pack
 mv 30_i2p_start.sh /etc/qubes/suspend-post.d/
 mv 30_i2p_restart.sh /etc/qubes/suspend-pre.d/
-
+echo "[Moving Scripts] OK" >> $LOGPATH 
 I2PROUTER="/usr/bin/i2prouter"
 # Install custom i2prouter stub scripts
 for script in ${I2PROUTER} ${I2PROUTER}-nowrapper; do
@@ -85,23 +89,28 @@ exit 0
 EOF
     chmod 755 "$script"
 done
-
+echo "[Removing I2PRouter Script] OK" >> $LOGPATH
 check_qubes_version
 setup_firewall_rules
+echo "[Adding I2P Firewall Config] OK" >> $LOGPATH
 }
 
 check_qubes_version(){
 	if [ -e /usr/lib/qubes/bind-dirs.sh ] || [ -e /usr/lib/qubes/init/bind-dirs.sh ] ; then
 		setup_persistent_path_qubes32
+		echo "[Adding Peristent Path Config] OK" >> $LOGPATH
+
 
 	else
 		setup_persistent_path_qubes31
+		echo "[Adding Peristent Path Config] OK" >> $LOGPATH
+
 	fi	
 }
 
 setup_persistent_path_qubes32(){
 	
-echo "\nAdding I2P's paths to Qubes Persistent Folders"
+echo "Adding I2P's paths to Qubes Persistent Folders"
 #Add I2P's paths to Qubes Persistent Folders
 cat >> "/usr/lib/qubes-bind-dirs.d/50_qubes-whonix.conf" << EOF
 binds+=( '/etc/i2p' )
@@ -160,7 +169,7 @@ sleep 1
 
 chown -R i2psvc /usr/share/i2p/ 
 chown -R i2psvc /var/lib/i2p/
-echo "\nDone, now please restart the ProxyVM of this Template to finish the Setup"
+echo "Done, now please restart the ProxyVM of this Template to finish the Setup"
 }
 
 if [ `id -u ` -ne 0 ]; then 
@@ -176,7 +185,7 @@ if [ -e /usr/share/anon-gw-base-files/gateway ]; then
     echo "Disclaimer \n"
    
 fi
-
+#check in what kind of VM we're runnign
 if [ "$qubes_vm_type" = "TemplateVM" ]; then
     echo "Disclaimer \n"
     # Display warning that TemplateVM is not connected to a Tor update proxy.

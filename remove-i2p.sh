@@ -32,7 +32,7 @@ SOCKS_PORT_I2P_BOTEIMAP=7662
 SOCKS_PORT_I2P_MTN=8998"
 
 FILES="
-/usr/bin/whonix-i2p
+/usr/bin/i2p-launcher
 /usr/share/icons/anon-icon-pack/i2p*
 /etc/qubes/suspend-post.d/30_i2p_start.sh
 /etc/qubes/suspend-pre.d/30_i2p_restart.sh

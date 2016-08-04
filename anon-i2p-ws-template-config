@@ -2,15 +2,18 @@
 
 set -e
 
+LOGPATH="/var/log/anon-i2p-config.log"
+
+
 disclaimer(){
 echo "Disclaimer \n"
 echo "This script will makes persistent changes to Whonix "
 echo "It could degrease your Anonymity or make Whonix Leak Information"
 echo "If you rely on strong Anonymity and are exposed to a large Advesary"
-echo "\n!!If any of that's the case Please dont use this !!"
-echo "\nThe Author takes no Responsibility if anything breaks \n"
+echo "!!If any of that's the case Please dont use this !!"
+echo "The Author takes no Responsibility if anything breaks \n"
 echo "The following changes will be made:\n"
-echo "\n Add Whonix-I2P Socat Port forwarding Init.d script"
+echo "Add Whonix-I2P Socat Port forwarding Init.d script"
 echo "Install Foxyproxy with custom Proxy Rules"
 echo -n "Are you sure you wish to continue? (y/n)  " 
 
@@ -33,20 +36,35 @@ echo "\nAdding custom Foxyproxy Rules to TorBrowser"
 ln -s /usr/share/xul-ext/foxyproxy-standard/ /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/extensions/foxyproxy@eric.h.jung
 cp /usr/share/usability-misc/tbb-foxyproxy/foxyproxy.xml /home/user/.tb/tor-browser/Browser/TorBrowser/Data/Browser/profile.default/
 echo "OK"
-mv i2p-whonix-socat-ws /etc/init.d/i2p-whonix-socat-ws
-chmod +x /etc/init.d/i2p-whonix-socat-ws
-update-rc.d i2p-whonix-socat-ws defaults
 
-# TODO refactor this script make it dynamic and more failsafe 
-# Add Testing Port forwarding
-#cat >> "/etc/anon-ws-disable-stacked-tor.d/50_user.conf" << EOF
-#EOF
+
+#Add Socat Port forwarding config
+if [ -d /etc/anon-ws-disable-stacked-tor.d/ ]; then
+    echo "Adding I2P Ports to the Socat User config"
+elif [ ! -e /etc/anon-ws-disable-stacked-tor.d/40.user.conf ]; then
+    cat >> "/etc/anon-ws-disable-stacked-tor.d/40_user.conf" << EOF
+I2P_PORTS="2827 3456 4444 4445 6668 7622 7650 7651 7654 7656 7658 7659 7660 7661 7662 8998"
+for i2p_port in $I2P_PORTS; do
+   socat TCP-LISTEN:$i2p_port,fork TCP:$GATEWAY_IP:$i2p_port &
+done
+EOF
 echo "OK"
+elif [ ! -d /etc/anon-ws-disable-stacked-tor.d/ ]; then
+    echo "Using old Whonix <13 method"
+    #Move i2p socat forwarding script and enable it
+    mv i2p-whonix-socat-ws /etc/init.d/i2p-whonix-socat-ws
+    chmod +x /etc/init.d/i2p-whonix-socat-ws
+    update-rc.d i2p-whonix-socat-ws defaults
+    echo "OK"
+else
+    echo " Something went Wrong"
+    
+fi
 }
 
 qubes_vm_type="$(qubesdb-read /qubes-vm-type)"
 
-
+#check in what kind of VM we're runnign
 if [ "$qubes_vm_type" = "TemplateVM" ]; then
     disclaimer
     if [ -e /usr/share/anon-ws-base-files/workstation ]; then

@@ -3,4 +3,4 @@
 
 set -e
 
-/usr/bin/i2p/whonix-i2p stop &
+/usr/bin/i2p-launcher stop &
