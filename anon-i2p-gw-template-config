@@ -111,6 +111,7 @@ check_qubes_version(){
 setup_persistent_path_qubes32(){
 	
 echo "Adding I2P's paths to Qubes Persistent Folders"
+[ -d /usr/lib/qubes-bind-dirs.d ] && 'folder already exists' || mkdir -p /usr/lib/qubes-bind-dirs.d
 #Add I2P's paths to Qubes Persistent Folders
 cat >> "/usr/lib/qubes-bind-dirs.d/50_qubes-whonix.conf" << EOF
 binds+=( '/etc/i2p' )
