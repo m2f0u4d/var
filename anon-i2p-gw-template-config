@@ -70,7 +70,7 @@ apt-get install i2p i2p-keyring
 
 #Move Scripts to their right place whonix-i2p 30_i2p_start.sh 30-i2p.sh 30.i2p_restart.sh i2p_config_proxyvm
 echo "\nMoving the Scripts and Icons to their proper place "
-if [ ! -d /usr/lib/i2p/ ]; thenkdir /usr/lib/i2p
+if [ ! -d /usr/lib/i2p/ ]; then dir /usr/lib/i2p
 mv i2p.sh /usr/lib/i2p/
 mv i2p-launcher /usr/bin/
 mv /res/*.png /usr/share/icons/anon-icon-pack
